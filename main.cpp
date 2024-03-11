@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "player.h"
+#include "map.h"
 
 int main()
 {
@@ -21,13 +22,64 @@ int main()
     // Ms. Sullivan - nuff said
     // I wonder if there is an easier way to do this? Make it portable - there probably is
     // look into this
-    if(!texture.loadFromFile("Textures\\New Piskel.png")){
+    if(!texture.loadFromFile("Textures\\Narnok.png")){
         return 1;
     }
+
+    // create the level with an array of integers
+    const int level[] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+    0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0,
+    0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0,
+    0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1, 0,
+    0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1, 0,
+    0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1, 0,
+    0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1, 0,
+    0, 1, 2, 3, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 3, 2, 1, 0,
+    0, 1, 2, 3, 0, 0, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 3, 2, 1, 0,
+    0, 1, 2, 3, 0, 0, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 3, 2, 1, 0,
+    0, 1, 2, 3, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 3, 2, 1, 0,
+    0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1, 0,
+    0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1, 0,
+    0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0,
+    0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0,
+    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    };
+
+    const unsigned int mapWidth = 20;
+    const unsigned int mapHeight = 18;
+
+
+    TileMap map;
+    if(!map.load("Textures\\TEST.png", sf::Vector2u(32, 32), level, mapWidth, mapHeight)){
+        return 1;
+
+    };
+
+
+    // resize the map
+    sf::Vector2u tileSize = map.getTileSize();
+    sf::Vector2u mapSize(mapWidth * tileSize.x, mapHeight * tileSize.y);
+
+    // sf::View view(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
+    sf::View view(sf::FloatRect(0, 0, mapSize.x, mapSize.y));
+    window.setView(view);
+
+    // create the four different faces of the sprite
     
+    sf::IntRect rightFace(0, 0, 32, 32);
+    sf::IntRect leftFace(32, 0, 32, 32);
+    sf::IntRect towardsFace(0, 32, 32, 64);
+    sf::IntRect awayFace(32, 32, 64, 64);
+
+
     // Initialize the Player - add texture and origin - and event
     // look into sf::Event() - I don't think that needs to be there but for now it breaks without it
-    Player Player(texture, {float(window.getSize().x / 2), float(window.getSize().y / 2)}, sf::Event());
+    Player Player(texture, {0, 0}, float(window.getSize().y / 2)}, sf::Event());
+    
+    //Player.sprite.setScale(4, 4);
     Player.sprite.setScale(4, 4);
 
     // run the program as long as the window is open
@@ -60,50 +112,56 @@ int main()
 
         }
 
+
         // clear the window with black color
         sf::Sprite sprite; // Declare and initialize the sprite variable
-        window.clear(sf::Color::Black);
+        window.clear();
 
+         // draw the map
+        window.draw(map);
+        
         // initialize the direction 
         sf::Vector2f direction = {0.f, 0.f};
 
         // for some reason if statements work better than switch case????
         // depending on keypressed - changes direction in the x or y direction to monitor's boundary
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-            if(Player.sprite.getPosition().y >= 0.5){
-                direction.y -= 5;
-            }
-            
+                Player.sprite.setTextureRect(towardsFace);
+                direction.y -= 3;
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-            if(Player.sprite.getPosition().y < (window.getSize().y - 30)){
-                direction.y += 5;
-            }
+                Player.sprite.setTextureRect(awayFace);
+                direction.y += 3;
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-            if(Player.sprite.getPosition().x > -8){
-                direction.x -= 5;
-            }
+                Player.sprite.setTextureRect(leftFace);
+                direction.x -= 3;
             
         }
+
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-            if(Player.sprite.getPosition().x < (window.getSize().x - 20)){
-                direction.x += 5;
-            }
+                Player.sprite.setTextureRect(rightFace);
+                direction.x += 3;
         }
 
-        // send updated direction to the move method in Player class
-        Player.move(direction);
+        sf::Vector2f newPosition = Player.sprite.getPosition() + direction;
+        if(newPosition.x >= 0 && newPosition.x < mapSize.x - Player.sprite.getGlobalBounds().width &&
+            newPosition.y >= 0 && newPosition.y < mapSize.y - Player.sprite.getGlobalBounds().height) {
+            Player.move(direction);
+        }
+
+        sf::Vector2f viewCenter(Player.sprite.getPosition().x + Player.sprite.getGlobalBounds().width / 2,
+                                Player.sprite.getPosition().y + Player.sprite.getGlobalBounds().height / 2);
+        view.setCenter(viewCenter);
+        window.setView(view);
 
         // draw the Player sprite after updating position
         window.draw(Player.sprite);
 
         // end the current frame
         window.display();
-
-        
     }
 
     return 0;
