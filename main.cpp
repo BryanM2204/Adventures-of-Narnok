@@ -77,10 +77,10 @@ int main()
 
     // Initialize the Player - add texture and origin - and event
     // look into sf::Event() - I don't think that needs to be there but for now it breaks without it
-    Player Player(texture, {0, 0}, float(window.getSize().y / 2)}, sf::Event());
+    Player Player(texture, {float(window.getSize().x /2), float(window.getSize().y / 2)}, sf::Event());
     
     //Player.sprite.setScale(4, 4);
-    Player.sprite.setScale(4, 4);
+    Player.sprite.setScale(2, 2);
 
     // run the program as long as the window is open
     while (window.isOpen())
@@ -127,23 +127,23 @@ int main()
         // depending on keypressed - changes direction in the x or y direction to monitor's boundary
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
                 Player.sprite.setTextureRect(towardsFace);
-                direction.y -= 3;
+                direction.y -= 2;
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
                 Player.sprite.setTextureRect(awayFace);
-                direction.y += 3;
+                direction.y += 2;
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
                 Player.sprite.setTextureRect(leftFace);
-                direction.x -= 3;
+                direction.x -= 2;
             
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
                 Player.sprite.setTextureRect(rightFace);
-                direction.x += 3;
+                direction.x += 2;
         }
 
         sf::Vector2f newPosition = Player.sprite.getPosition() + direction;
