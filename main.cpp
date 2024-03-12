@@ -59,16 +59,15 @@ int main()
     };
 
 
-    // resize the map
+    // resize the map 
     sf::Vector2u tileSize = map.getTileSize();
     sf::Vector2u mapSize(mapWidth * tileSize.x, mapHeight * tileSize.y);
 
     // sf::View view(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
-    sf::View view(sf::FloatRect(0, 0, mapSize.x, mapSize.y));
+    sf::View view(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
     window.setView(view);
 
     // create the four different faces of the sprite
-    
     sf::IntRect rightFace(0, 0, 32, 32);
     sf::IntRect leftFace(32, 0, 32, 32);
     sf::IntRect towardsFace(0, 32, 32, 64);
@@ -77,9 +76,9 @@ int main()
 
     // Initialize the Player - add texture and origin - and event
     // look into sf::Event() - I don't think that needs to be there but for now it breaks without it
-    Player Player(texture, {float(window.getSize().x /2), float(window.getSize().y / 2)}, sf::Event());
+    Player Player(texture, rightFace, {mapSize.x / 2.0f, mapSize.y / 2.0f}, sf::Event());
     
-    //Player.sprite.setScale(4, 4);
+    //resize the player sprite
     Player.sprite.setScale(2, 2);
 
     // run the program as long as the window is open
@@ -107,14 +106,22 @@ int main()
                     else {
                         window.create(sf::VideoMode(800, 600), "Test", sf::Style::Default);
                     }
+
+                    // Update the view size and center whenever switching from windowed to fullscreen - keeps everything consistent
+                    view.setSize(window.getSize().x, window.getSize().y);
+                    view.setCenter(window.getSize().x / 2.0f, window.getSize().y / 2.0f);
+                    window.setView(view);
+
                 }
             }
 
         }
 
 
-        // clear the window with black color
-        sf::Sprite sprite; // Declare and initialize the sprite variable
+        // Declare and initialize the sprite variable
+        sf::Sprite sprite;
+        
+        // clear the window 
         window.clear();
 
          // draw the map
@@ -126,12 +133,14 @@ int main()
         // for some reason if statements work better than switch case????
         // depending on keypressed - changes direction in the x or y direction to monitor's boundary
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-                Player.sprite.setTextureRect(towardsFace);
+                // this breaks my view - Player.sprite.setTextureRect(towardsFace);
+                // I don't know why - for now I will comment this out
                 direction.y -= 2;
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-                Player.sprite.setTextureRect(awayFace);
+                // similar problem as above
+                // Player.sprite.setTextureRect(awayFace);
                 direction.y += 2;
         }
 
@@ -146,14 +155,14 @@ int main()
                 direction.x += 2;
         }
 
+        // update the position of the sprite based on boundaries of map
         sf::Vector2f newPosition = Player.sprite.getPosition() + direction;
-        if(newPosition.x >= 0 && newPosition.x < mapSize.x - Player.sprite.getGlobalBounds().width &&
-            newPosition.y >= 0 && newPosition.y < mapSize.y - Player.sprite.getGlobalBounds().height) {
+        if(newPosition.x >= 0 && newPosition.x < mapSize.x - Player.sprite.getGlobalBounds().width && newPosition.y >= 0 && newPosition.y < mapSize.y - Player.sprite.getGlobalBounds().height) {
             Player.move(direction);
         }
 
-        sf::Vector2f viewCenter(Player.sprite.getPosition().x + Player.sprite.getGlobalBounds().width / 2,
-                                Player.sprite.getPosition().y + Player.sprite.getGlobalBounds().height / 2);
+        // update the view to follow the player
+        sf::Vector2f viewCenter(Player.sprite.getPosition().x + Player.sprite.getGlobalBounds().width / 2, Player.sprite.getPosition().y + Player.sprite.getGlobalBounds().height / 2);
         view.setCenter(viewCenter);
         window.setView(view);
 

@@ -5,11 +5,12 @@
 
 
 // Constructor - Initialize the character
-Player::Player(const sf::Texture& texture, sf::Vector2f position = {0.f, 0.f}, sf::Event event = sf::Event()) {
-    this->texture = texture;
+Player::Player(const sf::Texture& texture, sf::IntRect initialRect, sf::Vector2f position = {0.f, 0.f}, sf::Event event = sf::Event()) {
     // set texture of the sprite - MS SULLIVAN LOOKIN AAAA
     // Whatever happened to her??? 
+    this->texture = texture;
     this->sprite.setTexture(texture);
+    this->sprite.setTextureRect(initialRect);
 
     // initialize the player's position to the center of the screen
     this->position = position;

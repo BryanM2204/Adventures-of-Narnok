@@ -15,7 +15,7 @@ public:
     sf::Event event;
     sf::RenderWindow window;
     // Constructor 
-    Player(const sf::Texture &texture, sf::Vector2f position, sf::Event event);
+    Player(const sf::Texture &texture, sf::IntRect initialRect, sf::Vector2f position, sf::Event event);
 
     // updates the sprite's position
     void updatePosition(sf::Vector2f position);
