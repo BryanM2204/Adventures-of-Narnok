@@ -159,7 +159,7 @@ int main()
         sf::Vector2f newPosition = Player.sprite.getPosition() + direction;
         if(newPosition.x >= 0 && newPosition.x < mapSize.x - Player.sprite.getGlobalBounds().width && newPosition.y >= 0 && newPosition.y < mapSize.y - Player.sprite.getGlobalBounds().height) {
             Player.move(direction);
-        }
+        } 
 
         // update the view to follow the player
         sf::Vector2f viewCenter(Player.sprite.getPosition().x + Player.sprite.getGlobalBounds().width / 2, Player.sprite.getPosition().y + Player.sprite.getGlobalBounds().height / 2);

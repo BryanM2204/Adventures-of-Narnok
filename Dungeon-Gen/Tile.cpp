@@ -1,0 +1,1 @@
+enum class Tile { SOLID, OPEN };
