@@ -87,6 +87,9 @@ int main()
 
     sf::Clock timer;
 
+    // draw the map
+    window.draw(map);
+
     // run the program as long as the window is open
     while (window.isOpen())
     {
@@ -124,9 +127,6 @@ int main()
         
         // clear the window 
         window.clear();
-
-        // draw the map
-        window.draw(map);
         
         // initialize the direction 
         sf::Vector2f direction = {0.f, 0.f};

@@ -14,7 +14,7 @@
 
 class MazeBuilder {
 public:
-    MazeBuilder(int numRoomTries = 200, int extraConnectorChance = 0, int roomExtraSize = 0, int windingPercent = 0, bool removeDeadEnds = true);
+    MazeBuilder(int numRoomTries = 200, int extraConnectorChance = 0, int roomExtraSize = 0, int windingPercent = 0);
 
     void build(Maze& target);
 

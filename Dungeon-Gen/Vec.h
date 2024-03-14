@@ -36,6 +36,10 @@ public:
         return Vec(x * other, y * other);
     }
 
+    bool operator==(const Vec& other) const {
+        return x == other.x && y == other.y;
+    }
+
 };
 
 namespace std {

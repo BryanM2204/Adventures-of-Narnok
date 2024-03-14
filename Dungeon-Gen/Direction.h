@@ -22,6 +22,8 @@ inline Vec operator+(Direction direction, const Vec& vec) {
             return {vec.x, vec.y + 1};
         case Direction::W:
             return {vec.x - 1, vec.y};
+        default:
+            return vec;
         
     }
 }
@@ -42,6 +44,8 @@ inline Vec operator*(Direction direction, int scalar) {
             return {0, scalar};
         case Direction::W:
             return {-scalar, 0};
+        default:
+            return {0, 0};
     }
 }
 

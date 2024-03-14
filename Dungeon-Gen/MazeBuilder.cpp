@@ -11,7 +11,7 @@
 #include <algorithm>
 
 
-MazeBuilder::MazeBuilder(int numRoomTries = 200, int extraConnectorChance = 0, int roomExtraSize = 0, int windingPercent = 0, bool removeDeadEnds = true)
+MazeBuilder::MazeBuilder(int numRoomTries, int extraConnectorChance, int roomExtraSize, int windingPercent)
     : numRoomTries(numRoomTries), extraConnectorChance(extraConnectorChance), 
         roomExtraSize(roomExtraSize), windingPercent(windingPercent), 
         minEdgeLength(11 + roomExtraSize * 4),
@@ -51,9 +51,8 @@ void MazeBuilder::build(Maze& target) {
     connectRegions();
 
     // simplify the maze
-    if (removeDeadEnds) {
-        removeDeadEnds();
-    }
+    removeDeadEnds();
+    
 }
 
 
@@ -158,7 +157,10 @@ void MazeBuilder::connectRegions() {
     };
 
     // Keep connecting regions until there is only one region left
-    std::vector<Vec> connectors(connectorRegions.begin(), connectorRegions.end());
+    std::vector<Vec> connectors;
+    for (const auto& pair : connectorRegions) {
+        connectors.push_back(pair.first);
+    }
     while (openRegions.size() > 1 && !connectors.empty()) {
         Vec connector = connectors[std::uniform_int_distribution<>(0, connectors.size() - 1)(random)];
 
