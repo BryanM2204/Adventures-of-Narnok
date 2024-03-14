@@ -1,19 +1,40 @@
-#include "Tile.cpp"
+#include "Tile.h"
 #ifndef MAZE_H
 #define MAZE_H
 
+#include <vector>
+
 class Maze {
-    public:
-        virtual ~Maze() = default;
+public:
+    Maze(int width,  int height)
+        : width(width), height(height), tiles(height, std::vector<Tile>(width, Tile::SOLID)) {}
 
-        virtual int getWidth() const = 0;
-        virtual int getHeight() const = 0;
+    int getWidth() const {
+        return width;
+    }
 
-        virtual Tile getTile(int x, int y) const = 0;
+    int getHeight() const {
+        return height;
+    }
 
-        virtual void setTile(int x, int y, Tile tile) = 0;
+    Tile getTile(int x, int y) const {
+        return tiles[y][x];
+    }
 
-        virtual void fill(Tile tile) = 0;
+    void setTile(int x, int y, Tile tile) {
+        tiles[y][x] = tile;
+    }
+
+    void fill(Tile tile) {
+        for (auto& row : tiles) {
+            std::fill(row.begin(), row.end(), tile);
+        }
+    }
+
+private:
+    int width;
+    int height;
+    std::vector<std::vector<Tile>> tiles;
 
 };
 
