@@ -5,7 +5,7 @@ SFML_LIBS := -lsfml-graphics -lsfml-window -lsfml-system
 CFLAGS := -Wall -Wextra -g $(SFML_INCLUDE)
 LDFLAGS := $(SFML_LIB) $(SFML_LIBS)
 
-SRCS := main-test.cpp player.cpp Dungeon-Gen/MazeBuilder.cpp Dungeon-Gen/Tile.cpp
+SRCS := main.cpp player.cpp map.cpp DungeonGen/Leaf.cpp DungeonGen/Rectangle.cpp
 OBJS := $(SRCS:.cpp=.o)
 TARGET := main
 

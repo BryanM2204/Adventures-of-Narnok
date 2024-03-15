@@ -3,8 +3,8 @@
 #include <iostream>
 #include "player.h"
 #include "map.h"
-#include "Dungeon-Gen/Maze.h"
-#include "Dungeon-Gen/MazeBuilder.h"
+#include "DungeonGen/Leaf.h"
+#include "DungeonGen/Rectangle.h"
 
 int main()
 {
@@ -28,44 +28,31 @@ int main()
         return 1;
     }
 
-    // create the level with an array of integers
-    const int level[] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-    0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0,
-    0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0,
-    0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1, 0,
-    0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1, 0,
-    0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1, 0,
-    0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1, 0,
-    0, 1, 2, 3, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 3, 2, 1, 0,
-    0, 1, 2, 3, 0, 0, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 3, 2, 1, 0,
-    0, 1, 2, 3, 0, 0, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 3, 2, 1, 0,
-    0, 1, 2, 3, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 3, 2, 1, 0,
-    0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1, 0,
-    0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1, 0,
-    0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1, 0,
-    0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1, 0,
-    0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0,
-    0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0,
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    };
-
-    const unsigned int mapWidth = 20;
-    const unsigned int mapHeight = 20;
-
-
-    TileMap map;
-    if(!map.load("./Textures/TEST.png", sf::Vector2u(32, 32), level, mapWidth, mapHeight)){
+    sf::Texture tilesetTexture;
+    if(!tilesetTexture.loadFromFile("./Textures/TEST.png")){
         return 1;
+    }
 
-    };
 
+    // Generate the dungeon
+    Leaf dungeonGenerator(0, 0, 100, 100); // adjust size of dungeon
+    dungeonGenerator.generate(20); // adjust maximum leaf size (room size)
 
-    // resize the map 
-    sf::Vector2u tileSize = map.getTileSize();
-    sf::Vector2u mapSize(mapWidth * tileSize.x, mapHeight * tileSize.y);
+    // create list to store rooms and halls
+    std::list<Leaf> leafEdgeNodes;
+    std::list<Rectangle> halls;
+
+    // create rooms and halls in the dungeon
+    dungeonGenerator.createRooms(&leafEdgeNodes, &halls);
+
+    // retriegve generated dungeon data
+    std::vector<std::vector<int>> dungeonData = dungeonGenerator.getDungeonData();
+
+    // Load dungeon data into tile map
+    TileMap map;
+    if(!map.load(tilesetTexture, dungeonData, sf::Vector2u(32, 32))) {
+        return 1;
+    }
 
     // sf::View view(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
     sf::View view(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
@@ -80,15 +67,12 @@ int main()
 
     // Initialize the Player - add texture and origin - and event
     // look into sf::Event() - I don't think that needs to be there but for now it breaks without it
-    Player Player(texture, downFace, {mapSize.x / 2.0f, mapSize.y / 2.0f}, sf::Event());
+    Player Player(texture, downFace, sf::Vector2f(400, 300), sf::Event());
     
     //resize the player sprite
     Player.sprite.setScale(2, 2);
 
     sf::Clock timer;
-
-    // draw the map
-    window.draw(map);
 
     // run the program as long as the window is open
     while (window.isOpen())
@@ -156,16 +140,15 @@ int main()
                 direction.x += 4 * map.getTileSize().x * passed.asSeconds();
         }
 
-        // update the position of the sprite based on boundaries of map
-        sf::Vector2f newPosition = Player.sprite.getPosition() + direction;
-        if(newPosition.x >= 0 && newPosition.x < mapSize.x - Player.sprite.getGlobalBounds().width && newPosition.y >= 0 && newPosition.y < mapSize.y - Player.sprite.getGlobalBounds().height) {
-            Player.move(direction);
-        } 
+        Player.move(direction);
 
         // update the view to follow the player
         sf::Vector2f viewCenter(Player.sprite.getPosition().x + Player.sprite.getGlobalBounds().width / 2, Player.sprite.getPosition().y + Player.sprite.getGlobalBounds().height / 2);
         view.setCenter(viewCenter);
         window.setView(view);
+
+        // draw the tile map
+        window.draw(map);
 
         // draw the Player sprite after updating position
         window.draw(Player.sprite);
