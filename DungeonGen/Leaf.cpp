@@ -5,6 +5,7 @@
 #include "Rectangle.h"
 #include <cstdlib>
 #include <random>
+#include <iostream>
 
 
 
@@ -224,6 +225,7 @@ void Leaf::createHall(std::list<Rectangle>* halls, Rectangle* l, Rectangle* r) {
 }
 
 int Leaf::randIBetween(int a, int b) {
+	std::cout << "a: " << a << ", b: " << b << std::endl;
     static std::random_device rd;
     static std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(a, b);
