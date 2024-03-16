@@ -56,7 +56,7 @@ bool Leaf::split() {
 	// if the height is >25% larger than the width, we split horizontally
 	// otherwise we split randomly
 
-	bool splitH = (rand() % 10 + 1) > 5;
+	bool splitH = randTrue(50);
 	if (width > height && width / height >= 1.25) {
 		splitH = false;
 	}
@@ -70,6 +70,7 @@ bool Leaf::split() {
 		return false; // the area is too small to split any more...
 	}
 
+	srand(time(0));
 	int split = (rand() % (max - MIN_LEAF_SIZE + 1) + MIN_LEAF_SIZE);
 
 	// create our left and right children based on the direction of the split
@@ -105,17 +106,22 @@ void Leaf::createRooms() {
 		Point* roomPosition;
 
 		// the room can be between 3x3 tiles to the size of the leaf - 2
-		roomSize = new Point(randomInclusveBetween(3, width - 2), randomInclusveBetween(3, height - 2));
+		roomSize = new Point(randomInclusive(3, width - 2), randomInclusive(3, height - 2));
 		// place the room within the Leaf, but don't put it right agains the side of the leaf as it would merge then
-		roomPosition = new Point(randomInclusveBetween(1, width - roomSize->first - 1), randomInclusveBetween(1, height - roomSize->second - 1));
+		roomPosition = new Point(randomInclusive(1, width - roomSize->first - 1), randomInclusive(1, height - roomSize->second - 1));
 		this->room = new Rectangle(x + roomPosition->first, y + roomPosition->second, roomSize->first, roomSize->second);
 
 	}
 }
 
-int Leaf::randomInclusveBetween(int a, int b) {
+int Leaf::randomInclusive(int a, int b) {
 	
-	return ((rand() % ((b==0?1:b) - a + 1)) + a);
+	std::random_device rd;
+    std::mt19937 gen(rd());
+
+	std::uniform_int_distribution<> dis(a, b);
+
+	return dis(gen);
 }
 
 Rectangle* Leaf::getRoom() {
@@ -140,7 +146,7 @@ Rectangle* Leaf::getRoom() {
 		else if (NULL == lRoom) {
 			return rRoom;
 		}
-		else if (randomInclusveBetween(1, 10) > 5){
+		else if (randomInclusive(1, 10) > 5){
 			return lRoom;
 		}
 		else {
@@ -155,8 +161,8 @@ void Leaf::createHall(Rectangle* l, Rectangle* r) {
 	// you could do some extra logic to make your halls more bendy, or do some more advanced things if you wanted.
 	//list<Rectangle> halls; 
 
-	Point* p1 = new Point(randIBetween(l->left() + 1, l->right() - 2), randIBetween(l->top() + 1, l->bottom() - 2));
-	Point* p2 = new Point(randIBetween(r->left() + 1, r->right() - 2), randIBetween(r->top() + 1, r->bottom() - 2));
+	Point* p1 = new Point(randomInclusive(l->left() + 1, l->right() - 2), randomInclusive(l->top() + 1, l->bottom() - 2));
+	Point* p2 = new Point(randomInclusive(r->left() + 1, r->right() - 2), randomInclusive(r->top() + 1, r->bottom() - 2));
 
 	int w = p2->first - p1->first;
 	int h = p2->second - p1->second;
@@ -221,23 +227,16 @@ void Leaf::createHall(Rectangle* l, Rectangle* r) {
 	}
 }
 
-int Leaf::randIBetween(int a, int b) {
-    return ((rand() % ((b==0?1:b) - a + 1)) + a);
-}
-
 bool Leaf::randTrue(int percentage) {
-	return (percentage > randIBetween(1, 100));
+	return (percentage >= randomInclusive(1, 100));
 }
 
 // Leaf.cpp
-std::vector<std::vector<int>> Leaf::getDungeonData() const {
-    // Create a 2D vector to store the dungeon data
-    std::vector<std::vector<int>> dungeonData(height, std::vector<int>(width, 0));
-
-    // Iterate over the rooms and set the corresponding tiles to 1
+std::vector<std::vector<int>> Leaf::getDungeonData(std::vector<std::vector<int>> dungeonData) const {	
+	// Iterate over the rooms and set the corresponding tiles to 1
     if (room != nullptr) {
-        for (int y = std::max(room->top() - this->y, 0); y < std::min(room->bottom() - this->y, height - 1); ++y) {
-            for (int x = std::max(room->left() - this->x, 0); x < std::min(room->right() - this->x, width - 1); ++x) {
+        for (int y = room->top(); y < room->bottom(); ++y) {
+            for (int x = room->left(); x < room->right(); ++x) {
                 dungeonData[y][x] = 1;
             }
         }
@@ -245,18 +244,18 @@ std::vector<std::vector<int>> Leaf::getDungeonData() const {
 
     // Recursively process child leaves
     if (leftChild != nullptr) {
-        std::vector<std::vector<int>> leftData = leftChild->getDungeonData();
+        std::vector<std::vector<int>> leftData = leftChild->getDungeonData(dungeonData);
         for (int y = 0; y < leftChild->height; ++y) {
             for (int x = 0; x < leftChild->width; ++x) {
-                dungeonData[y + leftChild->y][x + leftChild->x] = leftData[y][x];
+                dungeonData[y + leftChild->y][x + leftChild->x] = leftData[y + leftChild->y][x + leftChild->x];
             }
         }
     }
     if (rightChild != nullptr) {
-        std::vector<std::vector<int>> rightData = rightChild->getDungeonData();
+        std::vector<std::vector<int>> rightData = rightChild->getDungeonData(dungeonData);
         for (int y = 0; y < rightChild->height; ++y) {
             for (int x = 0; x < rightChild->width; ++x) {
-                dungeonData[y + rightChild->y][x + rightChild->x] = rightData[y][x];
+                dungeonData[y + rightChild->y][x + rightChild->x] = rightData[y + rightChild->y][x + rightChild->x];
             }
         }
     }

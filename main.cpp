@@ -42,36 +42,34 @@ sf::Texture tilesetTexture;
     // Create the root Leaf
     std::vector<Leaf*> _leafs;
 
-    Leaf* root = new Leaf(0, 0, 15, 15);
+    //helper leaf
+    Leaf *l;
+
+    Leaf* root = new Leaf(0, 0, 30, 30);
 
     _leafs.push_back(root);
 
-    bool did_split = true;
-
-    // Loop through every Leaf in the vector until no more Leafs can be split
-    while (did_split) {
-        did_split = false;
-
-        for (auto l : _leafs) {
-            if (l->leftChild == nullptr && l->rightChild == nullptr) { // If this Leaf is not already split
-                // If this Leaf is too big, or 75% chance
-                if (l->width > MAX_LEAF_SIZE || l->height > MAX_LEAF_SIZE || (rand() % 100 > 25)) {
-                    if (l->split()) { // Split the Leaf
-                        // If we did split, push the child leafs to the vector
-                        _leafs.push_back(l->leftChild);
-                        _leafs.push_back(l->rightChild);
-                        did_split = true;
-                    }
+    while (!_leafs.empty()) {
+        l = _leafs.front();
+        if (l->leftChild == nullptr && l->rightChild == nullptr) { // If this Leaf is not already split
+            // If this Leaf is too big, or 75% chance
+            if (l->width > MAX_LEAF_SIZE || l->height > MAX_LEAF_SIZE || (root->randTrue(75))) {
+                if (l->split()) { // Attempt to split the Leaf
+                    // If we did split, push the child leafs to the vector
+                    _leafs.push_back(l->leftChild);
+                    _leafs.push_back(l->rightChild);
                 }
             }
         }
+        _leafs.erase(_leafs.begin());
     }
 
     // Create rooms in each Leaf
     root->createRooms();
 
     // retriegve generated dungeon data
-    std::vector<std::vector<int>> dungeonData = root->getDungeonData();
+    std::vector<std::vector<int>> dungeonData(root->height, std::vector<int>(root->width, 0));
+    dungeonData = root->getDungeonData(dungeonData);
 
     // Load dungeon data into tile map
     TileMap map;

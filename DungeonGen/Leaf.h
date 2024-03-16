@@ -9,7 +9,7 @@
 class Leaf {
 private:
 	const int MIN_LEAF_SIZE = 6;
-	int randomInclusveBetween(int a, int b);
+	int randomInclusive(int a, int b);
 
 	int max_leaf_size = 10; // can change
 	void doGeneration();
@@ -31,13 +31,12 @@ public:
 	void createRooms();
 	Rectangle* getRoom();
 
-	int randIBetween(int a, int b);
 	bool randTrue(int percentage);
 	void createHall(Rectangle* l, Rectangle* r);
 
 	void generate(int maxLeafSize);
 
-	std::vector<std::vector<int>> getDungeonData() const;
+	std::vector<std::vector<int>> getDungeonData(std::vector<std::vector<int>> dungeonData) const;
 
 };
 #endif
