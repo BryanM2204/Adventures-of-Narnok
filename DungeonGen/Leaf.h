@@ -28,12 +28,12 @@ public:
 	void init(int x, int y, int width, int height);
 	bool split();
 
-	void createRooms(std::list<Leaf>* leaf_edge_nodes, std::list<Rectangle>* halls);
+	void createRooms();
 	Rectangle* getRoom();
 
 	int randIBetween(int a, int b);
 	bool randTrue(int percentage);
-	void createHall(std::list<Rectangle>* halls, Rectangle* l, Rectangle* r);
+	void createHall(Rectangle* l, Rectangle* r);
 
 	void generate(int maxLeafSize);
 

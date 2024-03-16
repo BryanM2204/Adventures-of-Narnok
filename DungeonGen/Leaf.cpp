@@ -56,19 +56,20 @@ bool Leaf::split() {
 	// otherwise we split randomly
 
 	bool splitH = (rand() % 10 + 1) > 5;
-	if (width > height && height / width >= 0.05) {
+	if (width > height && width / height >= 1.25) {
 		splitH = false;
 	}
-	else if (height > width && width / height >= 0.05) {
+	else if (height > width && height / width >= 1.25) {
 		splitH = true;
 	}
 
 	int max = (splitH ? height : width) - MIN_LEAF_SIZE; // determine the maximum height or width
+
 	if (max <= MIN_LEAF_SIZE) {
 		return false; // the area is too small to split any more...
 	}
 
-	int split = (rand() % max + MIN_LEAF_SIZE);
+	int split = (rand() % (max - MIN_LEAF_SIZE + 1) + MIN_LEAF_SIZE);
 
 	// create our left and right children based on the direction of the split
 	if (splitH) {
@@ -85,38 +86,35 @@ bool Leaf::split() {
 /*
 This method generates all the rooms and hall ways for this leaf
 */
-void Leaf::createRooms(std::list<Leaf>* leaf_edge_nodes, std::list<Rectangle>* halls) {
+void Leaf::createRooms() {
 	if ((NULL != leftChild) || (NULL != rightChild)) {
 		if (NULL != leftChild) {
-			leftChild->createRooms(leaf_edge_nodes, halls);
+			leftChild->createRooms();
 		}
 		if (NULL != rightChild) {
-			rightChild->createRooms(leaf_edge_nodes, halls);
+			rightChild->createRooms();
 		}
-		
-		if ((NULL != leftChild) && (NULL != rightChild)) {
-			createHall(halls, leftChild->getRoom(), rightChild->getRoom());
+		if ((leftChild != NULL) && (rightChild != NULL)) {
+			createHall(leftChild->getRoom(), rightChild->getRoom());
 		}
-		
 	}
 	else {
 		// make a room
 		Point* roomSize;
 		Point* roomPosition;
 
-		// the room can be between 3x3 tiles to the size of the leaf -2
-		roomSize = new Point(randomInclusveBetween(width - 2, 3), randomInclusveBetween(3, height - 2));
+		// the room can be between 3x3 tiles to the size of the leaf - 2
+		roomSize = new Point(randomInclusveBetween(3, width - 2), randomInclusveBetween(3, height - 2));
 		// place the room within the Leaf, but don't put it right agains the side of the leaf as it would merge then
 		roomPosition = new Point(randomInclusveBetween(1, width - roomSize->first - 1), randomInclusveBetween(1, height - roomSize->second - 1));
 		this->room = new Rectangle(x + roomPosition->first, y + roomPosition->second, roomSize->first, roomSize->second);
-		leaf_edge_nodes->push_back(*this);
 
 	}
 }
 
 int Leaf::randomInclusveBetween(int a, int b) {
 	
-	return ((rand() % (b==0?1:b)) + a);
+	return ((rand() % ((b==0?1:b) - a + 1)) + a);
 }
 
 Rectangle* Leaf::getRoom() {
@@ -150,11 +148,13 @@ Rectangle* Leaf::getRoom() {
 	}
 }
 
-void Leaf::createHall(std::list<Rectangle>* halls, Rectangle* l, Rectangle* r) {
+void Leaf::createHall(Rectangle* l, Rectangle* r) {
 	// now we connect these two rooms together with hallways.
 	// this looks pretty complicated, but it's just trying to figure out which point is where and then either draw a straight line, or a pair of lines to make a right-angle to connect them.
 	// you could do some extra logic to make your halls more bendy, or do some more advanced things if you wanted.
 	//list<Rectangle> halls; 
+
+	std::vector<Rectangle*> halls;
 
 	Point* p1 = new Point(randIBetween(l->left() + 1, l->right() - 2), randIBetween(l->top() + 1, l->bottom() - 2));
 	Point* p2 = new Point(randIBetween(r->left() + 1, r->right() - 2), randIBetween(r->top() + 1, r->bottom() - 2));
@@ -165,71 +165,65 @@ void Leaf::createHall(std::list<Rectangle>* halls, Rectangle* l, Rectangle* r) {
 	if (w < 0) {
 		if (h < 0) {
 			if (randTrue(50)) {
-				halls->push_back(*new Rectangle(p2->first, p1->second, abs(w), 1));
-				halls->push_back(*new Rectangle(p2->first, p2->second, 1, abs(h)));
+				halls.push_back(new Rectangle(p2->first, p1->second, abs(w), 1));
+				halls.push_back(new Rectangle(p2->first, p2->second, 1, abs(h)));
 			}
 			else {
-				halls->push_back(*new Rectangle(p2->first, p2->second, abs(w), 1));
-				halls->push_back(*new Rectangle(p1->first, p2->second, 1, abs(h)));
+				halls.push_back(new Rectangle(p2->first, p2->second, abs(w), 1));
+				halls.push_back(new Rectangle(p1->first, p2->second, 1, abs(h)));
 			}
 		}
 		else if (h > 0) {
 			if (randTrue(50)) {
-				halls->push_back(*new Rectangle(p2->first, p1->second, abs(w), 1));
-				halls->push_back(*new Rectangle(p2->first, p1->second, 1, abs(h)));
+				halls.push_back(new Rectangle(p2->first, p1->second, abs(w), 1));
+				halls.push_back(new Rectangle(p2->first, p1->second, 1, abs(h)));
 			}
 			else {
-				halls->push_back(*new Rectangle(p2->first, p2->second, abs(w), 1));
-				halls->push_back(*new Rectangle(p1->first, p1->second, 1, abs(h)));
+				halls.push_back(new Rectangle(p2->first, p2->second, abs(w), 1));
+				halls.push_back(new Rectangle(p1->first, p1->second, 1, abs(h)));
 			}
 		}
 		else {
-			halls->push_back(*new Rectangle(p2->first, p2->second, abs(w), 1));
+			halls.push_back(new Rectangle(p2->first, p2->second, abs(w), 1));
 		}
 	}
 	else if (w > 0) {
 		if (h < 0) {
 			if (randTrue(50)) {
-				halls->push_back(*new Rectangle(p1->first, p2->second, abs(w), 1));
-				halls->push_back(*new Rectangle(p1->first, p2->second, 1, abs(h)));
+				halls.push_back(new Rectangle(p1->first, p2->second, abs(w), 1));
+				halls.push_back(new Rectangle(p1->first, p2->second, 1, abs(h)));
 			}
 			else {
-				halls->push_back(*new Rectangle(p1->first, p1->second, abs(w), 1));
-				halls->push_back(*new Rectangle(p2->first, p2->second, 1, abs(h)));
+				halls.push_back(new Rectangle(p1->first, p1->second, abs(w), 1));
+				halls.push_back(new Rectangle(p2->first, p2->second, 1, abs(h)));
 			}
 		}
 		else if (h > 0) {
 			if (randTrue(50)) {
-				halls->push_back(*new Rectangle(p1->first, p1->second, abs(w), 1));
-				halls->push_back(*new Rectangle(p2->first, p1->second, 1, abs(h)));
+				halls.push_back(new Rectangle(p1->first, p1->second, abs(w), 1));
+				halls.push_back(new Rectangle(p2->first, p1->second, 1, abs(h)));
 			}
 			else {
-				halls->push_back(*new Rectangle(p1->first, p2->second, abs(w), 1));
-				halls->push_back(*new Rectangle(p1->first, p1->second, 1, abs(h)));
+				halls.push_back(new Rectangle(p1->first, p2->second, abs(w), 1));
+				halls.push_back(new Rectangle(p1->first, p1->second, 1, abs(h)));
 			}
 		}
 		else {
-			halls->push_back(*new Rectangle(p1->first, p1->second, abs(w), 1));
+			halls.push_back(new Rectangle(p1->first, p1->second, abs(w), 1));
 		}
 	}
 	else {
 		if (h < 0) {
-			halls->push_back(*new Rectangle(p2->first, p2->second, 1, abs(h)));
+			halls.push_back(new Rectangle(p2->first, p2->second, 1, abs(h)));
 		}
 		else if (h > 0) {
-			halls->push_back(*new Rectangle(p1->first, p1->second, 1, abs(h)));
+			halls.push_back(new Rectangle(p1->first, p1->second, 1, abs(h)));
 		}
 	}
-
-
 }
 
 int Leaf::randIBetween(int a, int b) {
-	std::cout << "a: " << a << ", b: " << b << std::endl;
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(a, b);
-    return dis(gen);
+    return ((rand() % ((b==0?1:b) - a + 1)) + a);
 }
 
 bool Leaf::randTrue(int percentage) {

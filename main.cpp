@@ -5,6 +5,9 @@
 #include "map.h"
 #include "DungeonGen/Leaf.h"
 #include "DungeonGen/Rectangle.h"
+#include <vector>
+
+#define MAX_LEAF_SIZE 20
 
 int main()
 {
@@ -27,26 +30,48 @@ int main()
     if(!texture.loadFromFile("./Textures/Narnok.png")){
         return 1;
     }
-
-    sf::Texture tilesetTexture;
+sf::Texture tilesetTexture;
     if(!tilesetTexture.loadFromFile("./Textures/TEST.png")){
         return 1;
     }
 
 
     // Generate the dungeon
-    Leaf dungeonGenerator(0, 0, 100, 100); // adjust size of dungeon
-    dungeonGenerator.generate(20); // adjust maximum leaf size (room size)
+    //Leaf dungeonGenerator(0, 0, 101, 101); // adjust size of dungeon
+    
+    // Create the root Leaf
+    std::vector<Leaf*> _leafs;
 
-    // create list to store rooms and halls
-    std::list<Leaf> leafEdgeNodes;
-    std::list<Rectangle> halls;
+    Leaf* root = new Leaf(0, 0, 10, 10);
 
-    // create rooms and halls in the dungeon
-    dungeonGenerator.createRooms(&leafEdgeNodes, &halls);
+    _leafs.push_back(root);
+
+    bool did_split = true;
+
+    // Loop through every Leaf in the vector until no more Leafs can be split
+    while (did_split) {
+        did_split = false;
+
+        for (auto l : _leafs) {
+            if (l->leftChild == nullptr && l->rightChild == nullptr) { // If this Leaf is not already split
+                // If this Leaf is too big, or 75% chance
+                if (l->width > MAX_LEAF_SIZE || l->height > MAX_LEAF_SIZE || (rand() % 100 > 25)) {
+                    if (l->split()) { // Split the Leaf
+                        // If we did split, push the child leafs to the vector
+                        _leafs.push_back(l->leftChild);
+                        _leafs.push_back(l->rightChild);
+                        did_split = true;
+                    }
+                }
+            }
+        }
+    }
+
+    // Create rooms in each Leaf
+    root->createRooms();
 
     // retriegve generated dungeon data
-    std::vector<std::vector<int>> dungeonData = dungeonGenerator.getDungeonData();
+    std::vector<std::vector<int>> dungeonData = root->getDungeonData();
 
     // Load dungeon data into tile map
     TileMap map;
