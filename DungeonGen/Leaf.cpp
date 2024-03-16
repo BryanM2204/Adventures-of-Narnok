@@ -13,6 +13,7 @@ Leaf::Leaf(int X, int Y, int Width, int Height){
 	init(X, Y, Width, Height);
 	rightChild = NULL;
 	leftChild = NULL;
+	room = NULL;
 }
 
 /*
@@ -154,8 +155,6 @@ void Leaf::createHall(Rectangle* l, Rectangle* r) {
 	// you could do some extra logic to make your halls more bendy, or do some more advanced things if you wanted.
 	//list<Rectangle> halls; 
 
-	std::vector<Rectangle*> halls;
-
 	Point* p1 = new Point(randIBetween(l->left() + 1, l->right() - 2), randIBetween(l->top() + 1, l->bottom() - 2));
 	Point* p2 = new Point(randIBetween(r->left() + 1, r->right() - 2), randIBetween(r->top() + 1, r->bottom() - 2));
 
@@ -237,24 +236,12 @@ std::vector<std::vector<int>> Leaf::getDungeonData() const {
 
     // Iterate over the rooms and set the corresponding tiles to 1
     if (room != nullptr) {
-        for (int y = room->top(); y <= room->bottom(); ++y) {
-            for (int x = room->left(); x <= room->right(); ++x) {
+        for (int y = std::max(room->top() - this->y, 0); y < std::min(room->bottom() - this->y, height - 1); ++y) {
+            for (int x = std::max(room->left() - this->x, 0); x < std::min(room->right() - this->x, width - 1); ++x) {
                 dungeonData[y][x] = 1;
             }
         }
     }
-
-    // Iterate over the halls and set the corresponding tiles to 2
-    for (const auto& hall : halls) {
-		if (hall != nullptr) {
-			for (int y = hall->top(); y <= hall->bottom(); ++y) {
-            	for (int x = hall->left(); x <= hall->right(); ++x) {
-                	dungeonData[y][x] = 2;
-            	}
-        	}
-		}
-	}
-
 
     // Recursively process child leaves
     if (leftChild != nullptr) {
@@ -273,6 +260,20 @@ std::vector<std::vector<int>> Leaf::getDungeonData() const {
             }
         }
     }
+
+	// Iterate over the halls and set the corresponding tiles to 2
+    for (const auto& hall : halls) {
+		if (hall != nullptr) {
+			for (int y = hall->top(); y <= hall->bottom() - 1; ++y) {
+            	for (int x = hall->left(); x <= hall->right() - 1; ++x) {
+					if (dungeonData[y][x] == 0)
+					{
+                		dungeonData[y][x] = 2;
+					}
+            	}
+        	}
+		}
+	}
 
     return dungeonData;
 }

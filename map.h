@@ -12,7 +12,7 @@ private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
 public:
-    bool load(const sf::Texture& tileset, const std::vector<std::vector<int>>& dungeonData, sf::Vector2u tileSize);
+    bool load(const std::string& tileset, const std::vector<std::vector<int>>& dungeonData, sf::Vector2u tileSize);
     sf::Vector2u getTileSize() const {
         return m_tileSize;
     }

@@ -43,18 +43,18 @@ int Rectangle::sameArea(Rectangle other)
 }
 
 int Rectangle::left() {
-	return pX - (width/2);	
+	return pX;	
 }
 
 int Rectangle::right() {
-	return pX + (width / 2);
+	return pX + width;
 }
 
 int Rectangle::top() {
-	return pY - (height / 2);
+	return pY;
 }
 
 int Rectangle::bottom() {
-	return pY + (height / 2);
+	return pY + height;
 
 }

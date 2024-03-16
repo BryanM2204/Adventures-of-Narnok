@@ -42,7 +42,7 @@ sf::Texture tilesetTexture;
     // Create the root Leaf
     std::vector<Leaf*> _leafs;
 
-    Leaf* root = new Leaf(0, 0, 10, 10);
+    Leaf* root = new Leaf(0, 0, 15, 15);
 
     _leafs.push_back(root);
 
@@ -75,7 +75,7 @@ sf::Texture tilesetTexture;
 
     // Load dungeon data into tile map
     TileMap map;
-    if(!map.load(tilesetTexture, dungeonData, sf::Vector2u(32, 32))) {
+    if(!map.load("./Textures/TEST.png", dungeonData, sf::Vector2u(32, 32))) {
         return 1;
     }
 
