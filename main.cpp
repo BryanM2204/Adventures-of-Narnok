@@ -1,10 +1,10 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include "player.h"
-#include "map.h"
-#include "DungeonGen/Leaf.h"
-#include "DungeonGen/Rectangle.h"
+#include "Player/player.h"
+#include "Dungeon/map.h"
+#include "Dungeon/DungeonGen/Leaf.h"
+#include "Dungeon/DungeonGen/Rectangle.h"
 #include <vector>
 
 #define MAX_LEAF_SIZE 20
@@ -27,11 +27,11 @@ int main()
     // Ms. Sullivan - nuff said
     // I wonder if there is an easier way to do this? Make it portable - there probably is
     // look into this
-    if(!texture.loadFromFile("./Textures/Narnok.png")){
+    if(!texture.loadFromFile("./Assets/Sprites/Narnok.png")){
         return 1;
     }
 sf::Texture tilesetTexture;
-    if(!tilesetTexture.loadFromFile("./Textures/TEST.png")){
+    if(!tilesetTexture.loadFromFile("./Assets/Sprites/TEST.png")){
         return 1;
     }
 
@@ -45,7 +45,7 @@ sf::Texture tilesetTexture;
     //helper leaf
     Leaf *l;
 
-    Leaf* root = new Leaf(0, 0, 30, 30);
+    Leaf* root = new Leaf(0, 0, 50, 50);
 
     _leafs.push_back(root);
 
@@ -73,7 +73,7 @@ sf::Texture tilesetTexture;
 
     // Load dungeon data into tile map
     TileMap map;
-    if(!map.load("./Textures/TEST.png", dungeonData, sf::Vector2u(32, 32))) {
+    if(!map.load("./Assets/Sprites/TEST.png", dungeonData, sf::Vector2u(32, 32))) {
         return 1;
     }
 

@@ -3,7 +3,7 @@ SFML_LIBS := -lsfml-graphics -lsfml-window -lsfml-system
 CFLAGS := -Wall -Wextra -g
 LDFLAGS := $(SFML_LIBS) -lstdc++
 
-SRCS := main.cpp player.cpp map.cpp DungeonGen/Leaf.cpp DungeonGen/Rectangle.cpp
+SRCS := main.cpp Player/player.cpp Dungeon/map.cpp Dungeon/DungeonGen/Leaf.cpp Dungeon/DungeonGen/Rectangle.cpp
 OBJS := $(SRCS:.cpp=.o)
 TARGET := main
 
@@ -17,10 +17,10 @@ $(TARGET): $(OBJS)
 %.o: %.cpp
 	$(CC) -c $< -o $@ $(CFLAGS)
 
-DungeonGen/Rectangle.o: DungeonGen/Rectangle.cpp DungeonGen/Rectangle.h
+DungeonGen/Rectangle.o: Dungeon/DungeonGen/Rectangle.cpp Dungeon/DungeonGen/Rectangle.h
 	$(CC) -c $< -o $@ $(CFLAGS)
 
-DungeonGen/Leaf.o: DungeonGen/Leaf.cpp DungeonGen/Leaf.h DungeonGen/Rectangle.h
+DungeonGen/Leaf.o: Dungeon/DungeonGen/Leaf.cpp Dungeon/DungeonGen/Leaf.h Dungeon/DungeonGen/Rectangle.h
 	$(CC) -c $< -o $@ $(CFLAGS)
 
 clean:
